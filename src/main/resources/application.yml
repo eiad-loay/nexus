@@ -1,0 +1,46 @@
+spring:
+    datasource:
+        url: jdbc:postgresql://localhost:5432/e-commerce
+        driver-class-name: org.postgresql.Driver
+        username: ${DB.USERNAME}
+        password: ${DB.PASSWORD}
+
+    jpa:
+        hibernate:
+            ddl-auto: create
+        defer-datasource-initialization: true
+
+    sql:
+        init:
+            mode: always
+
+    mail:
+        host: smtp.gmail.com
+        port: 587
+        username: ${MAIL.USERNAME}
+        password: ${MAIL.PASSWORD}
+        properties:
+            mail:
+                smtp:
+                    auth: true
+                    starttls:
+                        enable: true
+
+    application:
+        name: nexus_e-commerce
+
+app:
+    base-url: "http://localhost:8080"
+
+logging:
+    level:
+        root: INFO
+        com:
+            nexus:
+                ecommerce: DEBUG
+
+jwt:
+    secret_key: ${JWT.SECRET_KEY}
+    access_token_expiration: 900000
+
+refresh_token_expiration: 604800000
