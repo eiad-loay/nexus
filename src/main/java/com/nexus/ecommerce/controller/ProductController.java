@@ -7,10 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -49,20 +47,32 @@ public class ProductController {
     }
 
     @PostMapping("/admin/add")
-    public ResponseEntity<?> save(@RequestBody ProductDto product) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public Response<?> save(@RequestBody ProductDto product) {
         Long id = productService.save(product);
-        return ResponseEntity.created(URI.create("/api/products/" + id)).build();
+        return Response.builder()
+                .status(HttpStatus.CREATED.value())
+                .message("Added product with id:" + id)
+                .build();
     }
 
     @PutMapping("/admin/update/{productId}")
-    public ResponseEntity<?> update(@PathVariable Long productId, @RequestBody ProductDto product) {
+    @ResponseStatus(HttpStatus.OK)
+    public Response<?> update(@PathVariable Long productId, @RequestBody ProductDto product) {
         productService.update(productId, product);
-        return ResponseEntity.ok().build();
+        return Response.builder()
+                .status(HttpStatus.OK.value())
+                .message("updated")
+                .build();
     }
 
     @DeleteMapping("/admin/delete/{productId}")
-    public ResponseEntity<?> delete(@PathVariable Long productId) {
+    @ResponseStatus(HttpStatus.OK)
+    public Response<?> delete(@PathVariable Long productId) {
         productService.deleteById(productId);
-        return ResponseEntity.ok().build();
+        return Response.builder()
+                .status(HttpStatus.OK.value())
+                .message("deleted")
+                .build();
     }
 }
