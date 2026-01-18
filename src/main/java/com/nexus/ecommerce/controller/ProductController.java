@@ -24,8 +24,8 @@ public class ProductController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Response<?> getAllProducts(@RequestBody Map<String, String> searchCriteria, Pageable pageable) {
-        Page<ProductDto> products = productService.getAllProductsByCriteria(searchCriteria, pageable);
+    public Response<?> getAllProducts(@RequestBody(required = false) Map<String, String> searchCriteria, Pageable pageable, @RequestParam(required = false, name = "category") String category) {
+        Page<ProductDto> products = productService.getAllProductsByCriteria(searchCriteria, pageable, category);
 
         return Response.builder()
                 .status(HttpStatus.OK.value())

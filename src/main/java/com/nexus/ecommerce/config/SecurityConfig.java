@@ -29,8 +29,6 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.util.WebUtils;
 
-import java.util.Objects;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -70,9 +68,9 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/verify", "/api/products", "/api/products/{}", "/api/products/").permitAll()
-                                .requestMatchers("/api/products/admin/**").hasRole("ADMIN")
-                                .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN")
+                                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/verify", "/api/products", "/api/products/{}").permitAll()
+                                .requestMatchers("/api/products/admin/**", "/api/categories/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/api/users/me").hasAnyRole("USER", "ADMIN")
                                 .anyRequest().authenticated()
                 );
 

@@ -24,22 +24,31 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
 
-    public Page<ProductDto> getAllProducts(Pageable pageable) {
-        Page<Product> products = productRepository.findAll(pageable);
-        return products.map(this::mapToDto);
-    }
-
-    public Page<ProductDto> getAllProductsByCriteria(Map<String, String> searchCriteria, Pageable pageable) {
+    public Page<ProductDto> getAllProductsByCriteria(Map<String, String> searchCriteria, Pageable pageable, String category) {
         Specification<Product> specs = Specification.unrestricted();
 
-        if (searchCriteria.containsKey("name") && StringUtils.isNotEmpty(searchCriteria.get("name"))) {
-            specs = specs.and(ProductSpecs.containsName(searchCriteria.get("name")));
+        if (category != null) {
+            category = category.toLowerCase();
+            specs = specs.and(ProductSpecs.byCategory(category));
         }
 
-        if (searchCriteria.containsKey("price") && StringUtils.isNotEmpty(searchCriteria.get("price"))) {
-            BigDecimal min =  new BigDecimal(searchCriteria.get("price").split(",")[0]);
-            BigDecimal max =  new BigDecimal(searchCriteria.get("price").split(",")[1]);
-            specs = specs.and(ProductSpecs.priceWithinRange(min, max));
+        if (searchCriteria != null) {
+            if (searchCriteria.containsKey("name") && StringUtils.isNotEmpty(searchCriteria.get("name"))) {
+                specs = specs.and(ProductSpecs.containsName(searchCriteria.get("name")));
+            }
+
+            if (searchCriteria.containsKey("price") && StringUtils.isNotEmpty(searchCriteria.get("price"))) {
+                String[] prices = searchCriteria.get("price").split(",");
+
+                if (prices.length != 2) {
+                    throw new IllegalArgumentException("Prices should contain exactly 2 values separated by comma");
+                }
+
+                BigDecimal min =  new BigDecimal((prices[0].isEmpty() || Double.isNaN(Double.parseDouble(prices[0])) ? "0" : prices[0]));
+                BigDecimal max =  new BigDecimal((prices[1].isEmpty() || Double.isNaN(Double.parseDouble(prices[1])) ? "10000" : prices[1]));
+
+                specs = specs.and(ProductSpecs.priceWithinRange(min, max));
+            }
         }
 
         return productRepository.findAll(specs, pageable).map(this::mapToDto);

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import javax.security.sasl.AuthenticationException;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,11 +25,11 @@ import java.util.List;
 public class GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<Response<Object>> handleAuthenticationException(AuthenticationException e) {
+    public Response<Object> handleAuthenticationException(AuthenticationException e) {
         log.warn("AuthenticationException handled: {}", e.getMessage());
         List<String> errors = new ArrayList<>();
         errors.add(e.getMessage());
-        return new ResponseEntity<>(buildResponse(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase(), errors), HttpStatus.UNAUTHORIZED);
+        return buildResponse(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase(), errors);
     }
 
     @ExceptionHandler(UserNotEnabledException.class)
@@ -42,10 +43,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Response<Object>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    public Response<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         List<String> errors = e.getBindingResult().getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
         log.warn("Validation failed with {} error(s)", errors.size());
-        return new ResponseEntity<>(buildResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(), errors), HttpStatus.BAD_REQUEST);
+        return buildResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(), errors);
+    }
+
+    @ExceptionHandler(InvalidParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Response<Object> handleInvalidParameterException(InvalidParameterException e) {
+        log.warn("InvalidParameterException handled: {}", e.getMessage());
+        List<String> errors = new ArrayList<>();
+        errors.add(e.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(), errors);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
@@ -59,47 +69,47 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserAlreadyExistException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<Response<Object>> handleUserAlreadyExistException(UserAlreadyExistException e) {
+    public Response<Object> handleUserAlreadyExistException(UserAlreadyExistException e) {
         log.warn("UserAlreadyExistException handled: {}", e.getMessage());
         List<String> errors = new ArrayList<>();
         errors.add(e.getMessage());
-        return new ResponseEntity<>(buildResponse(HttpStatus.CONFLICT.value(),  HttpStatus.CONFLICT.getReasonPhrase(), errors), HttpStatus.CONFLICT);
+        return buildResponse(HttpStatus.CONFLICT.value(),  HttpStatus.CONFLICT.getReasonPhrase(), errors);
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<Response<Object>> handleException(Exception e) {
+    public Response<Object> handleException(Exception e) {
         log.error("Unexpected exception handled", e);
         List<String> errors = new ArrayList<>();
         errors.add(e.getMessage());
-        return new ResponseEntity<>(buildResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),  HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), errors), HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),  HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), errors);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<Response<Object>> handleResourceNotFound(NoResourceFoundException e) {
+    public Response<Object> handleResourceNotFound(NoResourceFoundException e) {
         log.error("NoResourceFoundException handled");
         List<String> errors = new ArrayList<>();
         errors.add(e.getMessage());
-        return new ResponseEntity<>(buildResponse(HttpStatus.NOT_FOUND.value(),  HttpStatus.NOT_FOUND.getReasonPhrase(), errors), HttpStatus.NOT_FOUND);
+        return buildResponse(HttpStatus.NOT_FOUND.value(),  HttpStatus.NOT_FOUND.getReasonPhrase(), errors);
     }
 
     @ExceptionHandler(JwtException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Response<Object>> handleJwtEmailValidationException(JwtException e) {
+    public Response<Object> handleJwtEmailValidationException(JwtException e) {
         log.warn("JwtException handled: {}", e.getMessage());
         List<String> errors = new ArrayList<>();
         errors.add(e.getMessage());
-        return new ResponseEntity<>(buildResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(), errors), HttpStatus.BAD_REQUEST);
+        return buildResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(), errors);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Response<Object>> handleIllegalArgumentException(IllegalArgumentException e) {
+    public Response<Object> handleIllegalArgumentException(IllegalArgumentException e) {
         log.warn("IllegalArgumentException handled: {}", e.getMessage());
         List<String> errors = new ArrayList<>();
         errors.add(e.getMessage());
-        return new ResponseEntity<>(buildResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(), errors), HttpStatus.BAD_REQUEST);
+        return buildResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(), errors);
     }
 
     private Response<Object> buildResponse(int status, String message, List<String> errorList) {
