@@ -15,4 +15,9 @@ public class ProductSpecs {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.between(root.get("price").as(BigDecimal.class), min, max);
     }
+
+    public static Specification<Product> byCategory(String category) {
+        return ((root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("category").as(String.class), category));
+    }
 }
