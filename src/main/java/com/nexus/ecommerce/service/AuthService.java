@@ -56,6 +56,7 @@ public class AuthService {
     private final ApplicationEventPublisher eventPublisher;
     private final TokenService tokenService;
     private final UserDetailsService userDetailsService;
+    private final CartRepository cartRepository;
 
     public List<ResponseCookie> login(LoginRequest loginRequest) {
         String email = loginRequest.getEmail();
