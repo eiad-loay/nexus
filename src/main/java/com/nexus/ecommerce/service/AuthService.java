@@ -119,6 +119,13 @@ public class AuthService {
                 .role(role)
                 .build();
 
+        Cart cart = Cart.builder()
+                .user(user)
+                .items(new HashSet<>())
+                .build();
+
+        cartRepository.save(cart);
+
         userRepository.save(user);
         log.info("User persisted with email={} and role={}", user.getEmail(), role.getRoleName());
         eventPublisher.publishEvent(new UserRegistrationEvent(registerRequest.getEmail()));
