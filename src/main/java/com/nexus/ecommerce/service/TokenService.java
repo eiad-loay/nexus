@@ -56,7 +56,9 @@ public class TokenService {
 
     public boolean validateToken(String token) {
         Optional<RefreshToken> refreshToken = tokenRepository.findByToken(token);
-        return refreshToken.isPresent() && refreshToken.get().getExpiryDate().after(new Date());
+        return refreshToken.isPresent()
+                && refreshToken.get().getExpiryDate().after(new Date())
+                && userRepository.existsById(refreshToken.get().getUser().getId());
     }
 
     @Transactional
