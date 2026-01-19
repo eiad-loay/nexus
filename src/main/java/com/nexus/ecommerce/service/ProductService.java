@@ -54,10 +54,11 @@ public class ProductService {
         return productRepository.findAll(specs, pageable).map(this::mapToDto);
     }
 
-    public Product findById(Long id) {
-        return productRepository.findById(id).orElseThrow(
+    public ProductDto findById(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Product with id: " + id + " not found")
         );
+        return mapToDto(product);
     }
 
     @Transactional
@@ -69,7 +70,11 @@ public class ProductService {
 
     @Transactional
     public void update(Long id, ProductDto product) {
-        Product found = findById(id);
+
+        Product found = productRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Product with id: " + id + " not found")
+        );
+
         found.setName(product.getName());
         found.setDescription(product.getDescription());
         found.setPrice(product.getPrice());

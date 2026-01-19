@@ -1,5 +1,8 @@
 package com.nexus.ecommerce.dto.entity;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,8 +15,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class UserDto {
+    @NotEmpty(message = "username cannot be empty")
+    @Size(min = 2)
     private String username;
+
+    @Email(message = "please enter a valid email")
     private String email;
+
     private LocalDateTime createdOn;
     private LocalDateTime updatedOn;
 }

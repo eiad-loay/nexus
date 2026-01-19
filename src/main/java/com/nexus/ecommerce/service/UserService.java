@@ -22,9 +22,12 @@ public class UserService {
         return mapToDto(user);
     }
 
-    public UserDto updateActiveUser() {
+    public UserDto updateActiveUser(UserDto userDto) {
         String email = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        user.setEmail(userDto.getEmail());
+        user.setUsername(userDto.getUsername());
+        userRepository.save(user);
         return mapToDto(user);
     }
 

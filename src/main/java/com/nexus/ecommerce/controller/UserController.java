@@ -3,6 +3,7 @@ package com.nexus.ecommerce.controller;
 import com.nexus.ecommerce.dto.entity.UserDto;
 import com.nexus.ecommerce.dto.response.Response;
 import com.nexus.ecommerce.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +29,8 @@ public class UserController {
 
     @PutMapping("/me")
     @ResponseStatus(HttpStatus.OK)
-    public Response<UserDto> updateCurrentUser(@RequestBody UserDto userDto) {
-        UserDto user = userService.updateActiveUser();
+    public Response<UserDto> updateCurrentUser(@RequestBody @Valid UserDto userDto) {
+        UserDto user = userService.updateActiveUser(userDto);
 
         return Response.<UserDto>builder()
                 .status(HttpStatus.OK.value())
