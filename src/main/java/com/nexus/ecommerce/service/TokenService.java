@@ -4,6 +4,7 @@ import com.nexus.ecommerce.entity.RefreshToken;
 import com.nexus.ecommerce.entity.User;
 import com.nexus.ecommerce.exception.custom.EntityNotFoundException;
 import com.nexus.ecommerce.repository.TokenRepository;
+import com.nexus.ecommerce.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
