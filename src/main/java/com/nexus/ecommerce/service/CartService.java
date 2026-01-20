@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,5 +81,11 @@ public class CartService {
     private boolean containsInCart(Cart cart, Product product) {
         return cart.getItems().stream()
                 .anyMatch(item -> item.getProduct().getId().equals(product.getId()));
+    }
+
+    @Transactional
+    public void clearCart(Cart cart) {
+        cart.setItems(new HashSet<>());
+        cartRepository.save(cart);
     }
 }

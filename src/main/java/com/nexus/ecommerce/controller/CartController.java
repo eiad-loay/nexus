@@ -74,4 +74,17 @@ public class CartController {
                 .message("Product removed from cart successfully")
                 .build();
     }
+
+    @PostMapping("/clear")
+    @ResponseStatus(HttpStatus.OK)
+    public Response<?> clearCart() {
+        User user = userService.getActiveUser();
+        Cart cart = cartService.getCart(user.getId());
+        cartService.clearCart(cart);
+
+        return Response.builder()
+                .status(HttpStatus.OK.value())
+                .message("Cart cleared successfully")
+                .build();
+    }
 }
