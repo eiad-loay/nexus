@@ -38,7 +38,7 @@ public class CategoryController {
 
     @PostMapping("/admin/add")
     @ResponseStatus(HttpStatus.CREATED)
-    public Response<?> addCategory(@RequestBody @Valid Category category) {
+    public Response<?> addCategory(@RequestBody Category category) {
         log.info("POST /api/categories/admin/add - Creating category: {}", category.getName());
         categoryService.addCategory(category);
         log.info("Category '{}' created successfully", category.getName());

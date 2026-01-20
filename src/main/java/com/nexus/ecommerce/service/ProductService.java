@@ -24,6 +24,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
+    private final S3Service s3Service;
 
     public Page<ProductDto> getAllProductsByCriteria(Pageable pageable, String category, String name, String price) {
         log.debug("Fetching products with filters - category: {}, name: {}, price: {}", category, name, price);
@@ -100,11 +101,27 @@ public class ProductService {
     @Transactional
     public void deleteById(Long id) {
         log.info("Deleting product with ID: {}", id);
-        if (!productRepository.existsById(id)) {
-            throw new EntityNotFoundException("Product not found with ID: " + id);
-        }
+        Product found = productRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Product not found with ID: " + id)
+        );
+        s3Service.deleteImage(found.getImageUrl());
         productRepository.deleteById(id);
         log.info("Product {} deleted successfully", id);
+    }
+
+    @Transactional
+    public void updateProductImage(Long productId, String imageUrl) {
+        log.info("Updating image for product with ID: {}", productId);
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new EntityNotFoundException("Product not found with ID: " + productId)
+        );
+
+        if (product.getImageUrl() != null) {
+            s3Service.deleteImage(product.getImageUrl());
+        }
+
+        product.setImageUrl(imageUrl);
+        productRepository.save(product);
     }
 
     public ProductDto mapToDto(Product product) {
@@ -114,7 +131,9 @@ public class ProductService {
                 .price(product.getPrice())
                 .stock(product.getStock())
                 .category(product.getCategory().getName())
-                .imageUrl(product.getImageUrl())
+                .imageUrl(product.getImageUrl() != null
+                        ? s3Service.getPresignedGetUrl(product.getImageUrl()).uploadUrl()
+                        : null)
                 .build();
     }
 
@@ -125,7 +144,6 @@ public class ProductService {
                 .description(productDto.getDescription())
                 .price(productDto.getPrice())
                 .stock(productDto.getStock())
-                .imageUrl(productDto.getImageUrl())
                 .category(category)
                 .build();
     }

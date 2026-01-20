@@ -1,9 +1,11 @@
 package com.nexus.ecommerce.controller;
 
 import com.nexus.ecommerce.dto.entity.ProductDto;
+import com.nexus.ecommerce.dto.response.PresignedUrlResponse;
 import com.nexus.ecommerce.dto.response.Response;
 import com.nexus.ecommerce.entity.Product;
 import com.nexus.ecommerce.service.ProductService;
+import com.nexus.ecommerce.service.S3Service;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 public class ProductController {
 
     private final ProductService productService;
+    private final S3Service s3Service;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -97,4 +100,40 @@ public class ProductController {
                 .message("Product deleted successfully")
                 .build();
     }
+
+    @GetMapping("/admin/{productId}/image/upload-url")
+    @ResponseStatus(HttpStatus.OK)
+    public Response<PresignedUrlResponse> uploadImage(
+            @PathVariable Long productId,
+            @RequestParam String fileName
+    ) {
+        log.info("Generating upload URL for product {} with filename {}", productId, fileName);
+        productService.findById(productId);
+
+        PresignedUrlResponse response = s3Service.getPresignedUploadUrl(productId, fileName);
+
+        return Response.<PresignedUrlResponse>builder()
+                .status(HttpStatus.OK.value())
+                .message("Upload url created successfully")
+                .data(response)
+                .build();
+    }
+
+    @PutMapping("/admin/{productId}/image/confirm")
+    @ResponseStatus(HttpStatus.OK)
+    public Response<?> confirmProductImage(
+            @PathVariable Long productId,
+            @RequestParam String key) {
+        log.info("Confirming image upload for product with ID {}", productId);
+
+        productService.updateProductImage(productId, key);
+
+        log.info("Product with ID {} updated successfully", productId);
+
+        return Response.builder()
+                .status(HttpStatus.OK.value())
+                .message("Product image updated successfully")
+                .build();
+    }
+
 }

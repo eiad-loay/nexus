@@ -43,8 +43,7 @@ public class OrderService {
 
     public List<Order> getOrders(Long userId) {
         log.debug("Fetching all orders for userId={}", userId);
-        return orderRepository.findByUserId(userId).orElseThrow(
-                () -> new EntityNotFoundException("No orders found"));
+        return orderRepository.findByUserId(userId).orElse(List.of());
     }
 
     @Transactional
