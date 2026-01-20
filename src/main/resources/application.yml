@@ -2,8 +2,8 @@ spring:
     datasource:
         url: jdbc:postgresql://localhost:5432/e-commerce
         driver-class-name: org.postgresql.Driver
-        username: ${DB.USERNAME}
-        password: ${DB.PASSWORD}
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
 
     jpa:
         hibernate:
@@ -17,8 +17,8 @@ spring:
     mail:
         host: smtp.gmail.com
         port: 587
-        username: ${MAIL.USERNAME}
-        password: ${MAIL.PASSWORD}
+        username: ${MAIL_USERNAME}
+        password: ${MAIL_PASSWORD}
         properties:
             mail:
                 smtp:
@@ -32,6 +32,17 @@ spring:
 app:
     base-url: "http://localhost:8080"
 
+aws:
+    s3:
+        bucket-name: ${AWS_S3_BUCKET}
+        region: ${AWS_REGION:us-east-1}
+    credentials:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_KEY}
+    presigned-url:
+        upload-expiration-minutes: 15
+        download-expiration-minutes: 60
+
 logging:
     level:
         root: INFO
@@ -40,7 +51,7 @@ logging:
                 ecommerce: DEBUG
 
 jwt:
-    secret_key: ${JWT.SECRET_KEY}
+    secret_key: ${JWT_SECRET_KEY}
     access_token_expiration: 900000
 
 refresh_token_expiration: 604800000
