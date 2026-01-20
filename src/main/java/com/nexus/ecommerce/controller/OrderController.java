@@ -8,16 +8,17 @@ import com.nexus.ecommerce.service.CartService;
 import com.nexus.ecommerce.service.OrderService;
 import com.nexus.ecommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
+@Slf4j
 public class OrderController {
 
     private final CartService cartService;
@@ -27,43 +28,50 @@ public class OrderController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Response<List<OrderDto>> getOrders() {
-        String userEmail = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
-        User user = userService.findByEmail(userEmail);
+        User user = userService.getActiveUser();
+        log.info("GET /api/orders - Fetching orders for user: {}", user.getEmail());
 
-        List<OrderDto> orders = orderService.getOrders(user.getId()).stream().map(orderService::mapToDto).toList();
+        List<OrderDto> orders = orderService.getOrders(user.getId()).stream()
+                .map(orderService::mapToDto)
+                .toList();
+        log.debug("Found {} orders for user", orders.size());
 
         return Response.<List<OrderDto>>builder()
                 .status(HttpStatus.OK.value())
-                .message("success")
+                .message("Orders retrieved successfully")
                 .data(orders)
                 .build();
-
     }
 
     @GetMapping("/{orderId}")
     @ResponseStatus(HttpStatus.OK)
-    public Response<OrderDto> getOrder(@PathVariable Long orderId) {
-        OrderDto order = orderService.getOrderById(orderId);
+    public Response<OrderDto> getOrder(@PathVariable Long orderId) throws AccessDeniedException {
+        User user = userService.getActiveUser();
+        log.info("GET /api/orders/{} - Fetching order for user: {}", orderId, user.getEmail());
+
+        OrderDto order = orderService.getOrderById(orderId, user);
+        log.debug("Order {} retrieved successfully", orderId);
 
         return Response.<OrderDto>builder()
                 .status(HttpStatus.OK.value())
-                .message("success")
+                .message("Order retrieved successfully")
                 .data(order)
                 .build();
     }
 
     @PostMapping("/checkout")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     public Response<OrderDto> checkout() {
-        String userEmail = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
-        User user = userService.findByEmail(userEmail);
-        Cart cart = cartService.getCart(user.getId());
+        User user = userService.getActiveUser();
+        log.info("POST /api/orders/checkout - Processing checkout for user: {}", user.getEmail());
 
+        Cart cart = cartService.getCart(user.getId());
         OrderDto orderDto = orderService.checkout(cart, user);
+        log.info("Checkout completed successfully for user: {}", user.getEmail());
 
         return Response.<OrderDto>builder()
-                .status(HttpStatus.OK.value())
-                .message("successful order checkout")
+                .status(HttpStatus.CREATED.value())
+                .message("Order placed successfully")
                 .data(orderDto)
                 .build();
     }

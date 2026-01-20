@@ -22,6 +22,7 @@ public class TokenService {
     private Long tokenExpiration;
 
     private final TokenRepository tokenRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public String generateToken(User user) {

@@ -9,22 +9,24 @@ import com.nexus.ecommerce.utils.specs.ProductSpecs;
 import io.micrometer.common.util.StringUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
 
-    public Page<ProductDto> getAllProductsByCriteria(Map<String, String> searchCriteria, Pageable pageable, String category) {
+    public Page<ProductDto> getAllProductsByCriteria(Pageable pageable, String category, String name, String price) {
+        log.debug("Fetching products with filters - category: {}, name: {}, price: {}", category, name, price);
         Specification<Product> specs = Specification.unrestricted();
 
         if (category != null) {
@@ -32,63 +34,80 @@ public class ProductService {
             specs = specs.and(ProductSpecs.byCategory(category));
         }
 
-        if (searchCriteria != null) {
-            if (searchCriteria.containsKey("name") && StringUtils.isNotEmpty(searchCriteria.get("name"))) {
-                specs = specs.and(ProductSpecs.containsName(searchCriteria.get("name")));
-            }
-
-            if (searchCriteria.containsKey("price") && StringUtils.isNotEmpty(searchCriteria.get("price"))) {
-                String[] prices = searchCriteria.get("price").split(",");
-
-                if (prices.length != 2) {
-                    throw new IllegalArgumentException("Prices should contain exactly 2 values separated by comma");
-                }
-
-                BigDecimal min =  new BigDecimal((prices[0].isEmpty() || Double.isNaN(Double.parseDouble(prices[0])) ? "0" : prices[0]));
-                BigDecimal max =  new BigDecimal((prices[1].isEmpty() || Double.isNaN(Double.parseDouble(prices[1])) ? "10000" : prices[1]));
-
-                specs = specs.and(ProductSpecs.priceWithinRange(min, max));
-            }
+        if (StringUtils.isNotEmpty(name)) {
+            specs = specs.and(ProductSpecs.containsName(name));
         }
 
-        return productRepository.findAll(specs, pageable).map(this::mapToDto);
+        if (StringUtils.isNotEmpty(price)) {
+            String[] prices = price.split(",");
+
+            if (prices.length != 2) {
+                log.warn("Invalid price filter format: {}", price);
+                throw new IllegalArgumentException(
+                        "Price filter should contain exactly 2 values separated by comma (e.g., 100,500)");
+            }
+
+            BigDecimal min = new BigDecimal(
+                    (prices[0].isEmpty() || Double.isNaN(Double.parseDouble(prices[0])) ? "0" : prices[0]));
+            BigDecimal max = new BigDecimal(
+                    (prices[1].isEmpty() || Double.isNaN(Double.parseDouble(prices[1])) ? "10000" : prices[1]));
+
+            specs = specs.and(ProductSpecs.priceWithinRange(min, max));
+            log.debug("Price filter applied: {} to {}", min, max);
+        }
+
+        Page<Product> result = productRepository.findAll(specs, pageable);
+        log.debug("Found {} products matching criteria", result.getTotalElements());
+        return result.map(this::mapToDto);
     }
 
-    public ProductDto findById(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Product with id: " + id + " not found")
-        );
-        return mapToDto(product);
+    public Product findById(Long id) {
+        log.debug("Fetching product by ID: {}", id);
+        return productRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Product not found with ID: " + id));
     }
 
     @Transactional
     public Long save(ProductDto productDto) {
+        log.info("Creating new product: {}", productDto.getName());
         Product product = mapToEntity(productDto);
         Product savedProduct = productRepository.save(product);
+        log.info("Product created with ID: {}", savedProduct.getId());
         return savedProduct.getId();
     }
 
     @Transactional
-    public void update(Long id, ProductDto product) {
+    public void update(Long id, ProductDto productDto) {
+        log.info("Updating product with ID: {}", id);
 
         Product found = productRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Product with id: " + id + " not found")
-        );
+                () -> new EntityNotFoundException("Product not found with ID: " + id));
 
-        found.setName(product.getName());
-        found.setDescription(product.getDescription());
-        found.setPrice(product.getPrice());
-        found.setStock(product.getStock());
+        found.setName(productDto.getName());
+        found.setDescription(productDto.getDescription());
+        found.setPrice(productDto.getPrice());
+        found.setStock(productDto.getStock());
+
+        if (productDto.getCategory() != null) {
+            Category category = categoryService.findByName(productDto.getCategory());
+            found.setCategory(category);
+        }
+
         productRepository.save(found);
+        log.info("Product {} updated successfully", id);
     }
 
     @Transactional
     public void deleteById(Long id) {
+        log.info("Deleting product with ID: {}", id);
+        if (!productRepository.existsById(id)) {
+            throw new EntityNotFoundException("Product not found with ID: " + id);
+        }
         productRepository.deleteById(id);
+        log.info("Product {} deleted successfully", id);
     }
 
     public ProductDto mapToDto(Product product) {
-
         return ProductDto.builder()
                 .name(product.getName())
                 .description(product.getDescription())
@@ -97,7 +116,6 @@ public class ProductService {
                 .category(product.getCategory().getName())
                 .imageUrl(product.getImageUrl())
                 .build();
-
     }
 
     public Product mapToEntity(ProductDto productDto) {

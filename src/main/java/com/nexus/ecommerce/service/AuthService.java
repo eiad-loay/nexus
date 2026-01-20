@@ -4,12 +4,14 @@ import com.nexus.ecommerce.dto.request.LoginRequest;
 import com.nexus.ecommerce.dto.request.RegisterRequest;
 import com.nexus.ecommerce.dto.response.RegisterResponse;
 import com.nexus.ecommerce.dto.response.Response;
+import com.nexus.ecommerce.entity.Cart;
 import com.nexus.ecommerce.entity.ERole;
 import com.nexus.ecommerce.entity.Role;
 import com.nexus.ecommerce.entity.User;
 import com.nexus.ecommerce.exception.custom.EntityNotFoundException;
 import com.nexus.ecommerce.exception.custom.UserAlreadyExistException;
 import com.nexus.ecommerce.exception.custom.UserNotEnabledException;
+import com.nexus.ecommerce.repository.CartRepository;
 import com.nexus.ecommerce.repository.RoleRepository;
 import com.nexus.ecommerce.repository.UserRepository;
 import com.nexus.ecommerce.security.jwt.JwtUtils;
@@ -34,6 +36,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.WebUtils;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 

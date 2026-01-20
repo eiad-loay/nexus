@@ -6,6 +6,7 @@ import com.nexus.ecommerce.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,6 +20,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
+    @Cacheable(value = "user_details", key = "#username")
     public @NullMarked UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         log.debug("Loading user by username(email)={}", username);

@@ -32,7 +32,7 @@ public class Product {
     private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(foreignKey = @ForeignKey(name = "category_fk"), referencedColumnName = "name")
+    @JoinColumn(foreignKey = @ForeignKey(name = "category_fk"), referencedColumnName = "id")
     private Category category;
 
     @CreationTimestamp

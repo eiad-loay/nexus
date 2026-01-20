@@ -1,7 +1,6 @@
 package com.nexus.ecommerce.repository;
 
 import com.nexus.ecommerce.entity.Order;
-import com.nexus.ecommerce.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

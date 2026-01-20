@@ -18,6 +18,6 @@ public class ProductSpecs {
 
     public static Specification<Product> byCategory(String category) {
         return ((root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(criteriaBuilder.lower(root.get("category").as(String.class)), category));
+                criteriaBuilder.equal(criteriaBuilder.lower(root.get("category").get("name").as(String.class)), category));
     }
 }

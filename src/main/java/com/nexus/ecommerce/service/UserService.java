@@ -5,6 +5,8 @@ import com.nexus.ecommerce.entity.User;
 import com.nexus.ecommerce.exception.custom.EntityNotFoundException;
 import com.nexus.ecommerce.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -12,22 +14,34 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserDto getActiveUser() {
+    public User getActiveUser() {
         String email = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("User not found"));
-        return mapToDto(user);
+        log.debug("Fetching active user by email: {}", email);
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+    }
+
+    @Cacheable(value = "users", key = "#email")
+    public User findByEmail(String email) {
+        log.debug("Fetching user by email: {}", email);
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
     }
 
     public UserDto updateActiveUser(UserDto userDto) {
-        String email = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        User user = getActiveUser();
+        log.info("Updating user profile for: {}", user.getEmail());
+
         user.setEmail(userDto.getEmail());
         user.setUsername(userDto.getUsername());
         userRepository.save(user);
+
+        log.info("User profile updated successfully for: {}", userDto.getEmail());
         return mapToDto(user);
     }
 

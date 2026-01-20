@@ -9,15 +9,14 @@ import com.nexus.ecommerce.service.CartService;
 import com.nexus.ecommerce.service.ProductService;
 import com.nexus.ecommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/cart")
 @RequiredArgsConstructor
+@Slf4j
 public class CartController {
 
     private final CartService cartService;
@@ -27,15 +26,16 @@ public class CartController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Response<CartDto> getCart() {
-        String userEmail = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
-        User user = userService.findByEmail(userEmail);
+        User user = userService.getActiveUser();
+        log.info("GET /api/cart - Fetching cart for user: {}", user.getEmail());
 
         Cart cart = cartService.getCart(user.getId());
         CartDto cartDto = cartService.mapToDto(cart);
+        log.debug("Cart retrieved with {} items", cart.getItems().size());
 
         return Response.<CartDto>builder()
                 .status(HttpStatus.OK.value())
-                .message("success")
+                .message("Cart retrieved successfully")
                 .data(cartDto)
                 .build();
     }
@@ -43,35 +43,35 @@ public class CartController {
     @PostMapping("/add/{productId}")
     @ResponseStatus(HttpStatus.CREATED)
     public Response<?> addProductToCart(@PathVariable Long productId, @RequestParam Integer quantity) {
-        String userEmail = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
-        User user = userService.findByEmail(userEmail);
+        User user = userService.getActiveUser();
+        log.info("POST /api/cart/add/{} - Adding product to cart for user: {}, quantity: {}", productId,
+                user.getEmail(), quantity);
+
         Cart cart = cartService.getCart(user.getId());
-
         Product product = productService.findById(productId);
-
         cartService.addProductToCart(cart, product, quantity);
+        log.info("Product {} added to cart successfully", productId);
 
         return Response.builder()
                 .status(HttpStatus.CREATED.value())
-                .message("success")
+                .message("Product added to cart successfully")
                 .build();
     }
 
-    @DeleteMapping("/delete/{productId}")
+    @DeleteMapping("/remove/{productId}")
     @ResponseStatus(HttpStatus.OK)
-    public Response<?> deleteProductFromCart(@PathVariable Long productId) {
-        String userEmail = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
-        User user = userService.findByEmail(userEmail);
+    public Response<?> removeProductFromCart(@PathVariable Long productId) {
+        User user = userService.getActiveUser();
+        log.info("DELETE /api/cart/remove/{} - Removing product from cart for user: {}", productId, user.getEmail());
+
         Cart cart = cartService.getCart(user.getId());
-
         Product product = productService.findById(productId);
-
         cartService.removeProductFromCart(cart, product);
+        log.info("Product {} removed from cart successfully", productId);
 
         return Response.builder()
-                .status(HttpStatus.CREATED.value())
-                .message("success")
+                .status(HttpStatus.OK.value())
+                .message("Product removed from cart successfully")
                 .build();
     }
-
 }

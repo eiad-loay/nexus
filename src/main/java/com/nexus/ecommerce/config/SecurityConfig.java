@@ -42,7 +42,7 @@ public class SecurityConfig {
     private final AuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, DefaultErrorAttributes defaultErrorAttributes) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         log.info("Configuring SecurityFilterChain");
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -69,7 +69,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/verify").permitAll()
+                                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/verify", "/api/auth/refresh-token").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**", "/api/categories").permitAll()
                                 .requestMatchers("/api/products/admin/**", "/api/categories/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/api/users/me").authenticated()
