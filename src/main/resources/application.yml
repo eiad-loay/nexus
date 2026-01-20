@@ -35,9 +35,9 @@ app:
 aws:
     s3:
         bucket-name: ${AWS_S3_BUCKET}
-        region: ${AWS_REGION:us-east-1}
+        region: ${AWS_REGION}
     credentials:
-        access-key: ${AWS_ACCESS_KEY_ID}
+        access-key: ${AWS_ACCESS_KEY}
         secret-key: ${AWS_SECRET_ACCESS_KEY}
     presigned-url:
         upload-expiration-minutes: 15
