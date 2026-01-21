@@ -222,14 +222,6 @@ cd nexus-e-commerce
 # Run the application
 ./mvnw spring-boot:run
 ```
-
-### Docker
-
-```bash
-docker build -t nexus-ecommerce .
-docker run -p 8080:8080 --env-file .env nexus-ecommerce
-```
-
 ---
 
 ## 📊 Data Model
