@@ -131,26 +131,30 @@
 |--------|----------|-------------|
 | `POST` | `/api/auth/register` | Register new user |
 | `POST` | `/api/auth/login` | User login |
-| `POST` | `/api/auth/refresh` | Refresh access token |
-| `GET` | `/api/auth/verify` | Verify email |
+| `POST` | `/api/auth/refresh-token` | Refresh access token |
+| `GET` | `/api/auth/verify?token=` | Verify email |
 
 ### Products
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/api/products` | List products (paginated, filterable) |
-| `GET` | `/api/products/{id}` | Get product details |
-| `POST` | `/api/products` | Create product (Admin) |
-| `PUT` | `/api/products/{id}` | Update product (Admin) |
-| `DELETE` | `/api/products/{id}` | Delete product (Admin) |
+| `GET` | `/api/products/{productId}` | Get product details |
+| `POST` | `/api/products/admin/add` | Create product (Admin) |
+| `PUT` | `/api/products/admin/update/{productId}` | Update product (Admin) |
+| `DELETE` | `/api/products/admin/delete/{productId}` | Delete product (Admin) |
+| `GET` | `/api/products/admin/{productId}/image/upload-url` | Get presigned upload URL (Admin) |
+| `PUT` | `/api/products/admin/{productId}/image/confirm` | Confirm image upload (Admin) |
 
 ### Cart & Orders
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/api/cart` | Get user's cart |
-| `POST` | `/api/cart/items` | Add item to cart |
-| `DELETE` | `/api/cart/items/{id}` | Remove from cart |
-| `POST` | `/api/orders` | Create order from cart |
+| `POST` | `/api/cart/add/{productId}?quantity=` | Add item to cart |
+| `DELETE` | `/api/cart/remove/{productId}` | Remove from cart |
+| `POST` | `/api/cart/clear` | Clear cart |
 | `GET` | `/api/orders` | Get user's orders |
+| `GET` | `/api/orders/{orderId}` | Get order details |
+| `POST` | `/api/orders/checkout?addressId=` | Checkout cart |
 
 <details>
 <summary><b>View all endpoints →</b></summary>
@@ -159,7 +163,7 @@
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/api/categories` | List all categories |
-| `POST` | `/api/categories` | Create category (Admin) |
+| `POST` | `/api/categories/admin/add` | Create category (Admin) |
 
 ### User Profile
 | Method | Endpoint | Description |
@@ -171,9 +175,11 @@
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/api/addresses` | List user addresses |
+| `GET` | `/api/addresses/{id}` | Get address by ID |
 | `POST` | `/api/addresses` | Add new address |
 | `PUT` | `/api/addresses/{id}` | Update address |
 | `DELETE` | `/api/addresses/{id}` | Delete address |
+| `PATCH` | `/api/addresses/{id}/default` | Set default address |
 
 </details>
 
