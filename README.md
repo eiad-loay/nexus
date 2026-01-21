@@ -197,6 +197,7 @@
 
 ```bash
 # Database
+DB_URL=your_db_url
 DB_USERNAME=your_db_username
 DB_PASSWORD=your_db_password
 
