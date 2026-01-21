@@ -120,7 +120,6 @@
 | **Security** | JWT (jjwt 0.13.0), BCrypt password encoding |
 | **Email** | Spring Mail with async processing |
 | **Build** | Maven |
-| **Containerization** | Docker |
 
 ---
 
