@@ -6,6 +6,7 @@ import com.nexus.ecommerce.exception.custom.EntityNotFoundException;
 import com.nexus.ecommerce.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
     }
 
+    @CacheEvict(value = "users", key = "#result.email")
     public UserDto updateActiveUser(UserDto userDto) {
         User user = getActiveUser();
         log.info("Updating user profile for: {}", user.getEmail());
@@ -49,6 +51,7 @@ public class UserService {
         return UserDto.builder()
                 .email(user.getEmail())
                 .username(user.getUsername())
+                .role(user.getRole().getRoleName().name())
                 .createdOn(user.getCreatedOn())
                 .updatedOn(user.getUpdatedOn())
                 .build();

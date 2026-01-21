@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableAsync
-//@EnableCaching
+@EnableCaching
 @Slf4j
 public class ECommerceApplication {
 

@@ -1,0 +1,46 @@
+spring:
+    datasource:
+        url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+        driver-class-name: org.h2.Driver
+        username: sa
+        password: password
+    jpa:
+        database-platform: org.hibernate.dialect.H2Dialect
+        hibernate:
+            ddl-auto: create-drop
+        properties:
+            hibernate:
+                format_sql: true
+    
+    # Disable actual mail sending in tests
+    mail:
+        host: localhost
+        port: 1025
+        username: test
+        password: test
+        properties:
+            mail:
+                smtp:
+                    auth: false
+                    starttls:
+                        enable: false
+
+# Mock AWS S3 to avoid errors on startup if beans are created
+aws:
+    s3:
+        bucket-name: test-bucket
+        region: us-east-1
+    credentials:
+        access-key: test-key
+        secret-key: test-secret
+    presigned-url:
+        upload-expiration-minutes: 15
+        download-expiration-minutes: 60
+
+jwt:
+    secret_key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+    access_token_expiration: 900000
+    refresh_token_expiration: 604800000
+
+app:
+    base-url: "http://localhost:8080"

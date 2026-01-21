@@ -14,7 +14,10 @@ import java.util.Set;
 @Builder
 public class OrderDto {
 
+    private Long id;
     private Set<ItemDto> items;
     private BigDecimal totalPrice;
+    private String status;
+    private java.time.LocalDateTime createdAt;
 
 }

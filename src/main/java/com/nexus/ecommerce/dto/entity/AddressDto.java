@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 @Builder
 public class AddressDto {
 
+    private Long id;
+
     @NotEmpty(message = "Street cannot be empty")
     private String street;
 

@@ -10,6 +10,8 @@ import io.micrometer.common.util.StringUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -62,6 +64,7 @@ public class ProductService {
         return result.map(this::mapToDto);
     }
 
+    @Cacheable(value = "products", key = "#id")
     public Product findById(Long id) {
         log.debug("Fetching product by ID: {}", id);
         return productRepository.findById(id).orElseThrow(
@@ -77,6 +80,7 @@ public class ProductService {
         return savedProduct.getId();
     }
 
+    @CacheEvict(value = "products", key = "#id")
     @Transactional
     public void update(Long id, ProductDto productDto) {
         log.info("Updating product with ID: {}", id);
@@ -98,23 +102,23 @@ public class ProductService {
         log.info("Product {} updated successfully", id);
     }
 
+    @CacheEvict(value = "products", key = "#id")
     @Transactional
     public void deleteById(Long id) {
         log.info("Deleting product with ID: {}", id);
         Product found = productRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Product not found with ID: " + id)
-        );
+                () -> new EntityNotFoundException("Product not found with ID: " + id));
         s3Service.deleteImage(found.getImageUrl());
         productRepository.deleteById(id);
         log.info("Product {} deleted successfully", id);
     }
 
+    @CacheEvict(value = "products", key = "#productId")
     @Transactional
     public void updateProductImage(Long productId, String imageUrl) {
         log.info("Updating image for product with ID: {}", productId);
         Product product = productRepository.findById(productId).orElseThrow(
-                () -> new EntityNotFoundException("Product not found with ID: " + productId)
-        );
+                () -> new EntityNotFoundException("Product not found with ID: " + productId));
 
         if (product.getImageUrl() != null) {
             s3Service.deleteImage(product.getImageUrl());
@@ -126,6 +130,7 @@ public class ProductService {
 
     public ProductDto mapToDto(Product product) {
         return ProductDto.builder()
+                .id(product.getId())
                 .name(product.getName())
                 .description(product.getDescription())
                 .price(product.getPrice())

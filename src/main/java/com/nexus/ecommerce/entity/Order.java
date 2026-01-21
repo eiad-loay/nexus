@@ -25,10 +25,16 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shipping_address_id")
+    private Address shippingAddress;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Item> items;
 
     private BigDecimal totalPrice;
+
+    private String status;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

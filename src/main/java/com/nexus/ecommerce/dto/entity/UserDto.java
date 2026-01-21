@@ -22,6 +22,8 @@ public class UserDto {
     @Email(message = "please enter a valid email")
     private String email;
 
+    private String role;
+
     private LocalDateTime createdOn;
     private LocalDateTime updatedOn;
 }

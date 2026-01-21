@@ -56,8 +56,6 @@ public class S3Service {
             return null;
         }
 
-        log.debug("Generating presigned GET URL for key: {}", key);
-
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(s3Config.getBucketName())
                 .key(key)

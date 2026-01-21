@@ -48,17 +48,27 @@ public class AuthController {
         return authService.register(request);
     }
 
-    @GetMapping(value = "/verify", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
-    public Response<?> verifyToken(@RequestParam String token) {
+    @GetMapping(value = "/verify")
+    public void verifyToken(@RequestParam String token, HttpServletResponse response) throws java.io.IOException {
         log.info("HTTP GET /api/auth/verify");
 
-        return emailVerificationService.handleVerification(token);
+        try {
+            Response<?> result = emailVerificationService.handleVerification(token);
+            if (result.getStatus() == HttpStatus.OK.value() || result.getStatus() == HttpStatus.BAD_REQUEST.value()) {
+                response.sendRedirect("http://localhost:5173/login?verified=true");
+            } else {
+                response.sendRedirect("http://localhost:5173/login?error=true");
+            }
+        } catch (Exception e) {
+            log.error("Verification failed", e);
+            response.sendRedirect("http://localhost:5173/login?error=true");
+        }
     }
 
     @PostMapping(value = "/refresh-token")
     @ResponseStatus(HttpStatus.OK)
-    public Response<?> refreshToken(HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
+    public Response<?> refreshToken(HttpServletRequest request, HttpServletResponse response)
+            throws BadRequestException {
         log.info("HTTP POST /api/auth/refresh-token");
         ResponseCookie token = authService.refreshToken(request);
 

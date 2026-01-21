@@ -85,7 +85,7 @@ public class CartService {
 
     @Transactional
     public void clearCart(Cart cart) {
-        cart.setItems(new HashSet<>());
+        cart.getItems().clear();
         cartRepository.save(cart);
     }
 }

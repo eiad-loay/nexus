@@ -5,6 +5,7 @@ import com.nexus.ecommerce.entity.Address;
 import com.nexus.ecommerce.entity.User;
 import com.nexus.ecommerce.exception.custom.EntityNotFoundException;
 import com.nexus.ecommerce.repository.AddressRepository;
+import com.nexus.ecommerce.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class AddressService {
 
     private final AddressRepository addressRepository;
     private final UserService userService;
+    private final UserRepository userRepository;
 
     public List<AddressDto> getAddressesForActiveUser() {
         User user = getActiveUser();
@@ -53,6 +55,8 @@ public class AddressService {
         }
 
         Address savedAddress = addressRepository.save(address);
+        user.getAddresses().add(savedAddress);
+        userRepository.save(user);
         return mapToDto(savedAddress);
     }
 
@@ -129,6 +133,7 @@ public class AddressService {
 
     public AddressDto mapToDto(Address address) {
         return AddressDto.builder()
+                .id(address.getId())
                 .street(address.getStreet())
                 .city(address.getCity())
                 .state(address.getState())

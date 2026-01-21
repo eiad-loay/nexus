@@ -2,9 +2,7 @@ package com.nexus.ecommerce.controller;
 
 import com.nexus.ecommerce.dto.entity.OrderDto;
 import com.nexus.ecommerce.dto.response.Response;
-import com.nexus.ecommerce.entity.Cart;
 import com.nexus.ecommerce.entity.User;
-import com.nexus.ecommerce.service.CartService;
 import com.nexus.ecommerce.service.OrderService;
 import com.nexus.ecommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +19,6 @@ import java.util.List;
 @Slf4j
 public class OrderController {
 
-    private final CartService cartService;
     private final OrderService orderService;
     private final UserService userService;
 
@@ -61,12 +58,12 @@ public class OrderController {
 
     @PostMapping("/checkout")
     @ResponseStatus(HttpStatus.CREATED)
-    public Response<OrderDto> checkout() {
+    public Response<OrderDto> checkout(@RequestParam Long addressId) {
         User user = userService.getActiveUser();
-        log.info("POST /api/orders/checkout - Processing checkout for user: {}", user.getEmail());
+        log.info("POST /api/orders/checkout - Processing checkout for user: {} with addressId: {}", user.getEmail(),
+                addressId);
 
-        Cart cart = cartService.getCart(user.getId());
-        OrderDto orderDto = orderService.checkout(cart, user);
+        OrderDto orderDto = orderService.checkout(user, addressId);
         log.info("Checkout completed successfully for user: {}", user.getEmail());
 
         return Response.<OrderDto>builder()
