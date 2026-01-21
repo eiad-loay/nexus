@@ -1,6 +1,7 @@
 package com.nexus.ecommerce.service;
 
 import com.nexus.ecommerce.dto.entity.OrderDto;
+import com.nexus.ecommerce.dto.entity.ProductDto;
 import com.nexus.ecommerce.entity.*;
 import com.nexus.ecommerce.exception.custom.EntityNotFoundException;
 import com.nexus.ecommerce.repository.CartRepository;
@@ -27,6 +28,7 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final com.nexus.ecommerce.repository.AddressRepository addressRepository;
     private final ProductRepository productRepository;
+    private final ProductService productService;
 
     public OrderDto getOrderById(Long orderId, User user) throws AccessDeniedException {
         log.debug("Fetching order {} for user {}", orderId, user.getEmail());
@@ -84,8 +86,13 @@ public class OrderService {
             if (product.getStock() < cartItem.getQuantity()) {
                 throw new IllegalArgumentException("Product " + product.getName() + " quantity exceeds stock");
             }
-            product.setStock(product.getStock() - cartItem.getQuantity());
-            productRepository.save(product);
+            productService.update(product.getId(),
+                    ProductDto.builder()
+                            .description(product.getDescription())
+                            .name(product.getName())
+                            .price(product.getPrice())
+                            .stock(product.getStock() - cartItem.getQuantity())
+                            .build());
             Item orderItem = Item.builder()
                     .product(cartItem.getProduct())
                     .quantity(cartItem.getQuantity())
