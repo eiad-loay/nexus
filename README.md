@@ -11,7 +11,7 @@
 
 *A robust, scalable RESTful API powering modern e-commerce operations with enterprise-grade security and performance optimizations.*
 
-### 🌐 [Live Preeview](http://18.221.62.41/)
+### 🌐 [Live Preview](http://18.221.62.41/)
 
 ---
 
