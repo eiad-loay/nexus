@@ -8,10 +8,10 @@
         <version>4.0.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.nexus</groupId>
-    <artifactId>nexus_e-commerce</artifactId>
+    <groupId>com.novus</groupId>
+    <artifactId>novus_e-commerce</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>e-commerce</name>
+    <name>novus</name>
     <description>e-commerce</description>
     <url/>
     <licenses>
@@ -100,7 +100,7 @@
     </dependencies>
 
     <build>
-        <finalName>nexus</finalName>
+        <finalName>novus</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

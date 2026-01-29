@@ -27,7 +27,7 @@ spring:
                         enable: true
 
     application:
-        name: nexus_e-commerce
+        name: novus_e-commerce
 
 app:
     base-url: "http://localhost:8080"
@@ -47,8 +47,8 @@ logging:
     level:
         root: INFO
         com:
-            nexus:
-                ecommerce: DEBUG
+            novus:
+                ecommerce: INFO
 
 jwt:
     secret_key: ${JWT_SECRET_KEY}

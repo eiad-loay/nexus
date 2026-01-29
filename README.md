@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🛒 Nexus E-Commerce
+# 🛒 Novus E-Commerce
 
 ### A Production-Ready E-Commerce Backend API
 
@@ -221,8 +221,8 @@ AWS_SECRET_ACCESS_KEY=your-secret-key
 
 ```bash
 # Clone the repository
-git clone https://github.com/eiad-loay/nexus.git
-cd nexus
+git clone https://github.com/eiad-loay/novus.git
+cd novus
 
 # Build the project
 ./mvnw clean install
