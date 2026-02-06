@@ -31,11 +31,18 @@ public class TokenService {
 
         if (token.isPresent()) {
 
-            if (token.get().getExpiryDate().after(new Date())) {
+            RefreshToken refreshToken = token.get();
+
+            if (refreshToken.getExpiryDate().after(new Date())) {
                 return token.get().getToken();
             }
 
-            tokenRepository.delete(token.get());
+            refreshToken.setToken(UUID.randomUUID().toString());
+            refreshToken.setExpiryDate(new Date(System.currentTimeMillis() + tokenExpiration));
+
+            tokenRepository.updateByUserId(user.getId(), refreshToken.getToken());
+            return refreshToken.getToken();
+
         }
 
         RefreshToken refreshToken = RefreshToken.builder()
